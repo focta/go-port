@@ -30,32 +30,28 @@ package main
 import (
 	"flag" // 追加する
 	"fmt"
-	"os"
 	"strconv"
 )
 
 func main() {
 	// コマンドラインインターフェースでの実行
 	flag.Parse()
-	// arg := flag.Arg(0)
 	args := flag.Args()
-	fmt.Printf("Hello %s\n", args[0])
 
 	if len(args) == 0 {
 		return
 	} else {
+		fmt.Printf("Hello %s\n", args[0])
 		for i := range args {
 			fmt.Printf("key: %s \t", strconv.Itoa(i))
 			fmt.Printf("value: %s \n", args[i])
 		}
 	}
 
-	// TODO
-	_, err := os.Create("./hello.txt")
-	if err != nil {
-		fmt.Printf("failed to create file \n: %v", err)
-		return
-	}
+	// ファイル作成と実行
+	arg := flag.Arg(0)
 
-	fmt.Println("Done!")
+	msg := fmt.Sprintf("Hello %s\n", arg)
+
+	fileWriter(msg)
 }
