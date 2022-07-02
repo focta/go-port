@@ -17,6 +17,9 @@ func main() {
 	// POSTのみ許可.
 	http.HandleFunc("/basicAuth", handleBasicAuth)
 
+	// DBアクセスするパス
+	// http.HandleFunc("/dbAccess", handleDbAccess)
+
 	// 8080ポートで起動
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -75,4 +78,8 @@ func handleBasicAuth(w http.ResponseWriter, r *http.Request) {
 
 	// OK
 	fmt.Fprint(w, "OK")
+}
+
+func Add(a, b int) int {
+	return a + b
 }
