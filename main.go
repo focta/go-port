@@ -83,3 +83,8 @@ func handleBasicAuth(w http.ResponseWriter, r *http.Request) {
 func Add(a, b int) int {
 	return a + b
 }
+
+// テスト実行確認
+func Hello(name string) string {
+	return "Hello, " + name
+}
