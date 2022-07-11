@@ -61,7 +61,7 @@ func handleBasicAuth(w http.ResponseWriter, r *http.Request) {
 	username, password, ok := r.BasicAuth()
 
 	// そもそもそんなヘッダーがないなどのエラー.
-	if ok == false {
+	if !ok {
 		w.Header().Set("WWW-Authenticate", `Basic realm="SECRET AREA"`)
 		w.WriteHeader(http.StatusUnauthorized) // 401
 		fmt.Fprintf(w, "%d Not authorized.", http.StatusUnauthorized)
@@ -84,7 +84,13 @@ func Add(a, b int) int {
 	return a + b
 }
 
-// テスト実行確認
+const englishHelloPrefix = "Hello, "
+
+// Hello テスト実行確認
 func Hello(name string) string {
-	return "Hello, " + name
+	if name == "" {
+		name = "World"
+	}
+
+	return englishHelloPrefix + name
 }
