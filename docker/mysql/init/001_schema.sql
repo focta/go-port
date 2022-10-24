@@ -1,0 +1,2 @@
+CREATE SCHEMA IF NOT EXISTS `goport_db` DEAFULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+USE `goport_db`;

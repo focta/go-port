@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  db:
+    container_name: goport_mysql
+    build:
+      context: .
+      dockerfile: ./mysql/Dockerfile
+    ports:
+      - 63306:3306
+    environment:
+      MYSQL_DATABASE: goport
+      MYSQL_USER: focta
+      MYSQL_PASSWORD: to_be_continued
+      MYSQL_ROOT_PASSWORD: yellowsablmarine
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
