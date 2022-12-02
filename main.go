@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
@@ -18,32 +19,33 @@ type User struct {
 }
 
 func main() {
-	// メインプロセスの処理をrun関数で処理させて、mainは結果を受けとるだけにする
-	// Goの実装パターンでよく使われる模様
-	if err := run(context.Background()); err != nil {
+
+	if len(os.Args) != 2 {
+		log.Printf("need port number\n")
+		os.Exit(1)
+	}
+
+	p := os.Args[1]
+	l, err := net.Listen("tcp", ":"+p)
+
+	if err != nil {
 		log.Printf("failed to terminate server: %v", err)
 	}
-	// net/httpクラスを利用した
-	err := http.ListenAndServe(
-		":18080",
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
-		}),
-	)
-	if err != nil {
-		fmt.Printf("failed to terminate server: %v", err)
-		os.Exit(1)
+	// メインプロセスの処理をrun関数で処理させて、mainは結果を受けとるだけにする
+	// Goの実装パターンでよく使われる模様
+	if err := run(context.Background(), l); err != nil {
+		log.Printf("failed to terminate server: %v", err)
 	}
 }
 
 // ここにはサーバーの起動を別で記載する
 // main関数とは別に記載するのはGoではよくあること
-func run(ctx context.Context) error {
+func run(ctx context.Context, l net.Listener) error {
 
 	// http.ListenAndServe よりも下記の店でメリットがある模様
 	// - shutdown() メソッドがあり、メソッドの呼び出しでサーバー中断が可能(ListenAndServe だとプロセスキルによる強制終了しか選択肢がない)
 	s := &http.Server{
-		Addr: ":18080",
+		// Addr: ":18080", 引数のlをポートとして利用するため、一回ポートの固定の指定を削除する
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
 		}),
@@ -53,7 +55,7 @@ func run(ctx context.Context) error {
 	// errorgroupのインスタンスに対してGorutineを書きくだし、書き下した処理内でエラーが発生したときに err として返送してもらえる模様
 	eg, ctx := errgroup.WithContext(ctx)
 	eg.Go(func() error {
-		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := s.Serve(l); err != nil && err != http.ErrServerClosed {
 			log.Printf("failed to close: %+v", err)
 			return err
 
