@@ -1,7 +1,8 @@
 on:
   push:
-    branches:
-      - "main"
+    # ブランチ指定したい場合は、こんな感じでブランチの記載を加える
+    # branches:
+      # - "main"
   pull_request:
 name: test
 jobs:
