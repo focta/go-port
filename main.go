@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"go-port/config"
 	"log"
 	"net"
 	"net/http"
-	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/sync/errgroup"
@@ -19,29 +19,29 @@ type User struct {
 }
 
 func main() {
-
-	if len(os.Args) != 2 {
-		log.Printf("need port number\n")
-		os.Exit(1)
-	}
-
-	p := os.Args[1]
-	l, err := net.Listen("tcp", ":"+p)
-
-	if err != nil {
-		log.Printf("failed to terminate server: %v", err)
-	}
 	// メインプロセスの処理をrun関数で処理させて、mainは結果を受けとるだけにする
 	// Goの実装パターンでよく使われる模様
-	if err := run(context.Background(), l); err != nil {
+	if err := run(context.Background()); err != nil {
 		log.Printf("failed to terminate server: %v", err)
 	}
 }
 
 // ここにはサーバーの起動を別で記載する
 // main関数とは別に記載するのはGoではよくあること
-func run(ctx context.Context, l net.Listener) error {
+func run(ctx context.Context) error {
 
+	cfg, err := config.New()
+	if err != nil {
+		return err
+	}
+
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
+	if err != nil {
+		log.Fatalf("failed to listen port %d: %v", cfg.Port, err)
+	}
+
+	url := fmt.Sprintf("http://%s", l.Addr().String())
+	log.Printf("start with: %v", url)
 	// http.ListenAndServe よりも下記の店でメリットがある模様
 	// - shutdown() メソッドがあり、メソッドの呼び出しでサーバー中断が可能(ListenAndServe だとプロセスキルによる強制終了しか選択肢がない)
 	s := &http.Server{
