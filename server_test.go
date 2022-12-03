@@ -31,9 +31,7 @@ func TestHello(t *testing.T) {
 	})
 }
 
-func TestRun(t *testing.T) {
-
-	t.Skip("リファクタリング中")
+func TestServerRun(t *testing.T) {
 
 	// ポート番号に0を指定することで動的に空いているポートを確保してくれる
 	l, err := net.Listen("tcp", "localhost:0")
@@ -43,8 +41,12 @@ func TestRun(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	eg, ctx := errgroup.WithContext(ctx)
+	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+	})
 	eg.Go(func() error {
-		return run(ctx)
+		s := NewServer(l, mux)
+		return s.Run(ctx)
 	})
 	in := "message"
 	url := fmt.Sprintf("http://%s/%s", l.Addr().String(), in)
