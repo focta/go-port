@@ -19,7 +19,7 @@ func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var b struct {
-		Title string `json: "title validate: "required"`
+		Title string `json:"title" validate:"required"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
