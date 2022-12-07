@@ -46,14 +46,3 @@ func run(ctx context.Context) error {
 	return s.Run(ctx)
 
 }
-
-const englishHelloPrefix = "Hello, "
-
-// Hello テスト実行確認
-func Hello(name string) string {
-	if name == "" {
-		name = "World"
-	}
-
-	return englishHelloPrefix + name
-}
