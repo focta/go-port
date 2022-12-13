@@ -101,7 +101,7 @@ func TestRepository_ListTasks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// TODO あとで関数を作成する
+	// 先に関数を実装して option+Enter のコマンドで実装を行った
 	wants := prepareTasks(ctx, t, tx)
 
 	sut := &Repository{}
