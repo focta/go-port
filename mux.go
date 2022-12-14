@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"go-port/clock"
+	"go-port/config"
 	"go-port/handler"
 	"go-port/store"
 	"net/http"
@@ -9,7 +12,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func NewMux() http.Handler {
+func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), error) {
 	// http.serveMux()は色々な問題点があるので、利用しない
 	// mux := http.NewServeMux()
 	// 代わりに chi を利用して、routerを記載する！
@@ -21,10 +24,15 @@ func NewMux() http.Handler {
 	})
 
 	v := validator.New()
-	at := &handler.AddTask{Store: store.Tasks, Validator: v}
+	db, cleanup, err := store.New(ctx, cfg)
+	if err != nil {
+		return nil, cleanup, err
+	}
+	r := store.Repository{Clocker: clock.RealClocker{}}
+	at := &handler.AddTask{DB: db, Repo: &r, Validator: v}
 	mux.Post("/tasks", at.ServeHTTP)
-	lt := &handler.ListTask{Store: store.Tasks}
+	lt := &handler.ListTask{DB: db, Repo: &r}
 	mux.Get("/tasks", lt.ServeHTTP)
 
-	return mux
+	return mux, cleanup, nil
 }
